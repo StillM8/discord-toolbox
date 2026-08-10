@@ -1,0 +1,33 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.Zone.Identifier
+*:Zone.Identifier
+
+# Python environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.pyright/
+.mypy_cache/
+
+# Runtime data and local credentials
+data/
+backups/
+*.db
+*.sqlite
+*.sqlite3
+.codex/
+
+# Build artifacts
+build/
+dist/
+
+# Local editor/OS files
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,38 @@
+services:
+  toolbox:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: sqlite+aiosqlite:////data/toolbox.db
+      ASSET_DIRECTORY: /data/assets
+      CODEX_HOME: /data/codex
+      SEARXNG_URL: http://searxng:8080
+    depends_on:
+      - searxng
+    volumes:
+      - toolbox_data:/data
+      - toolbox_assets:/data/assets
+      - codex_home:/data/codex
+    networks:
+      - toolbox_net
+
+  searxng:
+    build: ./searxng
+    restart: unless-stopped
+    volumes:
+      - searxng_config:/etc/searxng
+    networks:
+      - toolbox_net
+
+networks:
+  toolbox_net:
+    driver: bridge
+
+volumes:
+  toolbox_data:
+  toolbox_assets:
+  codex_home:
+  searxng_config:

@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "toolbox"
+version = "0.1.0"
+description = "A modular, summon-only Discord utility layer."
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+    "discord.py>=2.4,<3",
+    "httpx>=0.28,<1",
+    "pydantic>=2.10,<3",
+    "pydantic-settings>=2.7,<3",
+    "SQLAlchemy[asyncio]>=2.0.36,<3",
+    "aiosqlite>=0.20,<1",
+    "alembic>=1.14,<2",
+    "openai-codex>=0.144.4,<0.145",
+    "dnspython>=2.7,<3",
+    "pillow-heif>=0.18,<1",
+    "python-magic>=0.4.27,<1",
+    "PyMuPDF>=1.25,<2",
+    "trafilatura>=2.0,<3",
+    "selectolax>=0.3.28,<1",
+    "pint>=0.24,<1",
+    "dateparser>=1.2,<2",
+    "Babel>=2.16,<3",
+    "structlog>=25,<26",
+    "tenacity>=9,<10",
+    "aiolimiter>=1.2,<2",
+    "pytesseract>=0.3.13,<1",
+    "qrcode[pil]>=8,<9",
+    "Pillow>=11,<13",
+]
+
+[project.optional-dependencies]
+openai = [
+    "openai>=1.66,<3",
+]
+local-media = [
+    "rembg>=2,<3",
+    "onnxruntime>=1.20,<2",
+    "faster-whisper>=1.1,<2",
+]
+pdf = [
+    "pypdf>=5,<7",
+]
+dev = [
+    "pyright>=1.1.390",
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "respx>=0.22,<1",
+    "ruff>=0.9",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/toolbox"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "3.12"
+typeCheckingMode = "strict"

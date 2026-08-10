@@ -1,0 +1,16 @@
+use_default_settings: true
+
+general:
+  instance_name: Toolbox Search
+
+search:
+  formats:
+    - html
+    - json
+
+server:
+  # This service is private to the Compose network. Replace this value if the
+  # SearXNG UI is ever exposed outside that network.
+  secret_key: toolbox-internal-secret-change-before-public-exposure
+  limiter: false
+  image_proxy: true
