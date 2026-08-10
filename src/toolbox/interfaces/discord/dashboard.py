@@ -707,7 +707,7 @@ def _category_actions(category: str) -> tuple[DashboardAction, ...]:
                 CapabilityName.JSON,
                 "JSON text",
                 "Format JSON",
-                "{}",
+                "📋",
                 (("mode", "format"),),
             ),
             _input_action(
@@ -725,7 +725,7 @@ def _category_actions(category: str) -> tuple[DashboardAction, ...]:
                 "Timestamp now",
                 "Create a Discord timestamp for now.",
                 CapabilityName.TIMESTAMP,
-                "🕰",
+                "🕒",
                 (("mode", "now"),),
             ),
             _input_action(
@@ -744,7 +744,7 @@ def _category_actions(category: str) -> tuple[DashboardAction, ...]:
                 CapabilityName.CONVERT,
                 "Conversion",
                 "Convert",
-                "↔",
+                "🔄",
             ),
             _input_action(
                 "time",
@@ -763,7 +763,7 @@ def _category_actions(category: str) -> tuple[DashboardAction, ...]:
                 CapabilityName.WEATHER,
                 "Location",
                 "Weather",
-                "☁",
+                "🌦️",
             ),
         )
     if category == "personal":
@@ -848,7 +848,7 @@ def _message_actions(message: discord.Message) -> tuple[DashboardAction, ...]:
                     "Ask about image",
                     "Understand the selected image.",
                     CapabilityName.IMAGE_ASK,
-                    "👁",
+                    "👁️",
                 ),
                 DashboardAction(
                     "image_edit_ai",
@@ -864,7 +864,7 @@ def _message_actions(message: discord.Message) -> tuple[DashboardAction, ...]:
                     "Remove background",
                     "Create a transparent cutout.",
                     CapabilityName.IMAGE_BACKGROUND_REMOVE,
-                    "✂",
+                    "✂️",
                 ),
                 _direct_action(
                     "ocr",

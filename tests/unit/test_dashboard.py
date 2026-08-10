@@ -101,6 +101,9 @@ async def test_tools_dashboard_exposes_the_local_utility_pack() -> None:
         "Calculate",
         "Convert",
     }.issubset(labels)
+    options = {option.label: option for option in _action_select(view).options}
+    assert options["Format JSON"].emoji is not None
+    assert options["Format JSON"].emoji.name == "📋"
 
 
 def test_selected_message_dashboard_keeps_target_actions_in_one_menu() -> None:
