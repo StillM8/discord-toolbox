@@ -20,6 +20,7 @@ Discord is only an interface adapter. Codex is the default text/reasoning provid
 - a deterministic utility pack: `/tool random`, `/tool text`, `/tool encode`, `/tool json`, `/tool color`, `/tool image`, and `/tool fileinfo`;
 - `/tool ocr` for images and `/tool transcribe` for audio attachments;
 - `/create image` through Codex ImageGen with an explicit, opt-in paid OpenAI fallback;
+- `/create edit <attachment> <instruction>` through the same Codex ImageGen boundary, with fast deterministic edits still handled locally;
 - a compact, reusable Toolbox dashboard for slash commands, selected messages, and selected users; actions are grouped into Ask/Understand, Search, Create, Utilities, and Personal sections instead of a button wall;
 - a `Toolbox` message/user context panel for Ask, What is this, Search, Translate, Fact check, Save, Add context, OCR, image questions, image transforms, memes, transcription, and configurable reference-style quote cards (font, alignment, color, and image placement);
 - owner-scoped saved items, context basket, preferences, durable reminders, and `/me` subcommands for status/preferences/saved/reminders/context;
@@ -46,7 +47,7 @@ Required accounts:
 - Discord Developer application configured for user installation and the intended interaction contexts;
 - a ChatGPT/Codex account for the default text provider.
 
-No search, weather, currency, or OpenAI API key is required for the default local-search/Codex-text setup. OpenAI API, GIPHY, TMDB, and YouTube credentials are optional and feature-gated.
+No search, weather, currency, or OpenAI API key is required for the default local-search/Codex-text setup. Frankfurter is preferred for supported currencies, with a keyless exchange-rate fallback for broader currency coverage. OpenAI API, GIPHY, TMDB, and YouTube credentials are optional and feature-gated.
 
 ## Local setup
 

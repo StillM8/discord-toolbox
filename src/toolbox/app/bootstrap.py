@@ -81,6 +81,8 @@ from toolbox.interfaces.discord.renderer import DiscordRenderer
 from toolbox.providers.audio.faster_whisper import FasterWhisperTranscriptionProvider
 from toolbox.providers.audio.openai import OpenAITranscriptionClient, OpenAITranscriptionProvider
 from toolbox.providers.audio.unavailable import UnavailableTranscriptionProvider
+from toolbox.providers.currency.exchange_rate_api import ExchangeRateApiCurrencyProvider
+from toolbox.providers.currency.fallback import FallbackCurrencyProvider
 from toolbox.providers.currency.frankfurter import FrankfurterCurrencyProvider
 from toolbox.providers.images.codex import CodexImageProvider
 from toolbox.providers.images.openai import OpenAIImageProvider, OpenAIImagesClient
@@ -373,7 +375,10 @@ def build_runtime(settings: Settings | None = None) -> Runtime:
     dispatcher.register(CapabilityName.ENCODE, EncodingCapability())
     dispatcher.register(CapabilityName.JSON, JsonCapability())
     dispatcher.register(CapabilityName.COLOR, ColorCapability())
-    currency_provider = FrankfurterCurrencyProvider(http.client)
+    currency_provider = FallbackCurrencyProvider(
+        primary=FrankfurterCurrencyProvider(http.client),
+        fallback=ExchangeRateApiCurrencyProvider(http.client),
+    )
     dispatcher.register(CapabilityName.CONVERT, ConvertCapability(currency=currency_provider))
     dispatcher.register(CapabilityName.TIME, TimeConversionCapability(clock))
     dispatcher.register(CapabilityName.TIMESTAMP, TimestampCapability(clock))

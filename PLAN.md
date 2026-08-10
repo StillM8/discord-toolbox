@@ -195,7 +195,7 @@ The two transports are alternatives for a deployment, not two simultaneous inter
 | OpenAI API | optional vision, structured fallback, transcription, paid image fallback | 1–2 | disabled unless explicitly configured |
 | SearXNG | raw web/image/news/video search | 1 | required local Compose service |
 | Open-Meteo | weather and geocoding | 2 | no-key, non-commercial candidate |
-| Frankfurter | currency rates | 2 | no-key candidate; display rate date/source |
+| Frankfurter + keyless exchange-rate fallback | currency rates | 2 | Frankfurter is preferred; fallback covers currencies outside its ECB dataset |
 | GIPHY | GIF search | optional | disabled unless explicitly enabled with a configured key; keep attribution/rate terms current |
 | Local Pillow/Tesseract/ffmpeg | transformations, OCR, media conversion | 2 | preferred for privacy/cost |
 
