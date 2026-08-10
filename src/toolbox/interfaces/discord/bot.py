@@ -512,6 +512,26 @@ class ToolboxBot(discord.Client):
                 options={"prompt": prompt},
             )
 
+        @create_group.command(name="edit", description="Edit an image with Codex AI.")
+        @app_commands.describe(
+            attachment="Image to edit",
+            instruction="What should change in the image?",
+        )
+        @app_commands.allowed_installs(guilds=True, users=True)
+        @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+        async def create_edit(  # pyright: ignore[reportUnusedFunction]
+            interaction: discord.Interaction,
+            attachment: discord.Attachment,
+            instruction: str,
+        ) -> None:
+            await self._execute(
+                interaction,
+                CapabilityName.IMAGE_EDIT_AI,
+                source_attachment=attachment,
+                text=instruction,
+                options={"prompt": instruction},
+            )
+
         @create_group.command(name="meme", description="Caption an attached image.")
         @app_commands.describe(
             attachment="Image to caption",

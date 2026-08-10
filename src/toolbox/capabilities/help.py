@@ -67,6 +67,8 @@ class HelpCapability:
                     title="Create",
                     lines=(
                         "`/create image <prompt>` — Generate an image.",
+                        "`/create edit <attachment> <instruction>` — Edit an image with "
+                        "Codex AI.",
                         "`/create meme <attachment>` — Caption an image.",
                         "`/create caption <attachment> <caption>` — Add text above an image.",
                         "`/create quote <attachment>` — Make a quote card; choose font, "
