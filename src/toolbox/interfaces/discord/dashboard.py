@@ -167,7 +167,7 @@ class DashboardBackButton(discord.ui.Button[discord.ui.View]):
     """Return to the dashboard home category."""
 
     def __init__(self, owner: ToolboxDashboardView) -> None:
-        super().__init__(label="Back", emoji="◀", style=discord.ButtonStyle.secondary, row=2)
+        super().__init__(label="Back", emoji="◀️", style=discord.ButtonStyle.secondary, row=2)
         self._owner = owner
 
     async def callback(self, interaction: discord.Interaction) -> None:
@@ -178,7 +178,7 @@ class DashboardCloseButton(discord.ui.Button[discord.ui.View]):
     """Close an ephemeral dashboard without invoking application behavior."""
 
     def __init__(self, owner: ToolboxDashboardView) -> None:
-        super().__init__(label="Close", emoji="✕", style=discord.ButtonStyle.secondary, row=2)
+        super().__init__(label="Close", emoji="❌", style=discord.ButtonStyle.secondary, row=2)
         self._owner = owner
 
     async def callback(self, interaction: discord.Interaction) -> None:
@@ -424,7 +424,7 @@ class HelpPageButton(discord.ui.Button[discord.ui.View]):
 
     def __init__(self, owner: HelpView, *, direction: int) -> None:
         label = "Previous" if direction < 0 else "Next"
-        emoji = "◀" if direction < 0 else "▶"
+        emoji = "◀️" if direction < 0 else "▶️"
         super().__init__(
             label=label,
             emoji=emoji,
@@ -442,7 +442,7 @@ class HelpCloseButton(discord.ui.Button[discord.ui.View]):
     """Close the interactive help panel."""
 
     def __init__(self) -> None:
-        super().__init__(label="Close", emoji="✕", style=discord.ButtonStyle.secondary, row=1)
+        super().__init__(label="Close", emoji="❌", style=discord.ButtonStyle.secondary, row=1)
 
     async def callback(self, interaction: discord.Interaction) -> None:
         await interaction.response.edit_message(content="Help closed.", embed=None, view=None)
@@ -667,7 +667,7 @@ def _category_actions(category: str) -> tuple[DashboardAction, ...]:
                 CapabilityName.QR,
                 "Text or URL",
                 "Create QR code",
-                "▦",
+                "🔳",
             ),
         )
     if category == "tools":
@@ -1011,13 +1011,13 @@ def _input_action(
 
 def _category_emoji(category: str) -> str:
     return {
-        "home": "⌂",
+        "home": "🏠",
         "understand": "💡",
         "search": "🔎",
         "create": "🎨",
-        "tools": "🛠",
+        "tools": "🛠️",
         "personal": "🔖",
-        "selected": "▣",
+        "selected": "🎯",
     }.get(category, "•")
 
 

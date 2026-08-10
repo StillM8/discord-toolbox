@@ -11,6 +11,7 @@ from toolbox.interfaces.discord.components import ActionExecutor
 from toolbox.interfaces.discord.dashboard import (
     DashboardActionSelect,
     DashboardCategorySelect,
+    HelpCloseButton,
     HelpPageButton,
     HelpView,
     ToolboxDashboardView,
@@ -138,6 +139,15 @@ def test_help_view_starts_with_previous_disabled_and_next_enabled() -> None:
     assert buttons["Next"].disabled is False
     fields = view.embed().to_dict().get("fields", [])
     assert fields and "General" in fields[0]["name"]
+
+
+def test_help_view_uses_discord_valid_close_emoji() -> None:
+    view = HelpView(HelpResult(sections=(HelpSection("General", ("`/help`",)),)))
+
+    close = next(child for child in view.children if isinstance(child, HelpCloseButton))
+
+    assert close.emoji is not None
+    assert close.emoji.name == "❌"
 
 
 def test_dashboard_actions_use_application_capability_names() -> None:

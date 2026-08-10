@@ -78,13 +78,13 @@ class SessionActionButton(discord.ui.Button[discord.ui.View]):
             ActionKind.DELETE: discord.ButtonStyle.danger,
         }.get(action_kind, discord.ButtonStyle.secondary)
         emoji = {
-            ActionKind.SHARE: "↗",
-            ActionKind.SEND_DM: "✉",
-            ActionKind.EXPAND: "↕",
-            ActionKind.NEXT_PAGE: "▶",
-            ActionKind.PREVIOUS_PAGE: "◀",
-            ActionKind.REGENERATE: "↻",
-            ActionKind.REFINE: "✎",
+            ActionKind.SHARE: "📤",
+            ActionKind.SEND_DM: "✉️",
+            ActionKind.EXPAND: "🔎",
+            ActionKind.NEXT_PAGE: "▶️",
+            ActionKind.PREVIOUS_PAGE: "◀️",
+            ActionKind.REGENERATE: "🔄",
+            ActionKind.REFINE: "✏️",
         }.get(action_kind)
         super().__init__(
             label=label,
