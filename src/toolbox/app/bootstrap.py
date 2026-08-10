@@ -12,14 +12,18 @@ from toolbox.capabilities.ask import AskCapability
 from toolbox.capabilities.background_removal import BackgroundRemovalCapability
 from toolbox.capabilities.calculate import CalculateCapability
 from toolbox.capabilities.codex_login import CodexLoginCapability
+from toolbox.capabilities.colors import ColorCapability
 from toolbox.capabilities.convert import ConvertCapability
 from toolbox.capabilities.emoji import EmojiCapability
+from toolbox.capabilities.encoding import EncodingCapability
 from toolbox.capabilities.explain import WhatIsThisCapability
 from toolbox.capabilities.file_convert import FileConvertCapability
+from toolbox.capabilities.file_info import FileInfoCapability
 from toolbox.capabilities.help import HelpCapability
 from toolbox.capabilities.image_edit import ImageEditCapability
 from toolbox.capabilities.image_generation import ImageGenerationCapability
 from toolbox.capabilities.image_question import ImageQuestionCapability
+from toolbox.capabilities.json_tools import JsonCapability
 from toolbox.capabilities.media import ImageAssetCapability, OCRCapability
 from toolbox.capabilities.personal import (
     ContextAddCapability,
@@ -35,6 +39,7 @@ from toolbox.capabilities.ping import PingCapability
 from toolbox.capabilities.preferences import PreferencesCapability
 from toolbox.capabilities.qr import QRCapability
 from toolbox.capabilities.quote import QuoteCapability
+from toolbox.capabilities.random_tools import RandomCapability
 from toolbox.capabilities.reminders import (
     ReminderCancelCapability,
     ReminderCreateCapability,
@@ -43,7 +48,9 @@ from toolbox.capabilities.reminders import (
 from toolbox.capabilities.search import SearchCapability
 from toolbox.capabilities.search_expand import SearchExpandCapability
 from toolbox.capabilities.status import StatusCapability
+from toolbox.capabilities.text_tools import TextCapability
 from toolbox.capabilities.time import TimeConversionCapability
+from toolbox.capabilities.timestamp import TimestampCapability
 from toolbox.capabilities.transcribe import TranscribeCapability
 from toolbox.capabilities.translate import TranslateCapability
 from toolbox.capabilities.user_info import UserInfoCapability
@@ -361,9 +368,15 @@ def build_runtime(settings: Settings | None = None) -> Runtime:
     dispatcher.register(CapabilityName.PING, PingCapability())
     dispatcher.register(CapabilityName.HELP, HelpCapability())
     dispatcher.register(CapabilityName.CALCULATE, CalculateCapability())
+    dispatcher.register(CapabilityName.RANDOM, RandomCapability())
+    dispatcher.register(CapabilityName.TEXT, TextCapability())
+    dispatcher.register(CapabilityName.ENCODE, EncodingCapability())
+    dispatcher.register(CapabilityName.JSON, JsonCapability())
+    dispatcher.register(CapabilityName.COLOR, ColorCapability())
     currency_provider = FrankfurterCurrencyProvider(http.client)
     dispatcher.register(CapabilityName.CONVERT, ConvertCapability(currency=currency_provider))
     dispatcher.register(CapabilityName.TIME, TimeConversionCapability(clock))
+    dispatcher.register(CapabilityName.TIMESTAMP, TimestampCapability(clock))
     dispatcher.register(
         CapabilityName.SEARCH_WEB,
         SearchCapability(
@@ -431,6 +444,7 @@ def build_runtime(settings: Settings | None = None) -> Runtime:
         CapabilityName.FILE_CONVERT,
         FileConvertCapability(assets, attachment_ingestor, file_processor),
     )
+    dispatcher.register(CapabilityName.FILE_INFO, FileInfoCapability())
     dispatcher.register(
         CapabilityName.IMAGE_EDIT,
         ImageAssetCapability(assets, attachment_ingestor, image_processor),

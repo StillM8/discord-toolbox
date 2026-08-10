@@ -30,6 +30,11 @@ from toolbox.interfaces.discord.components import (
     QuoteStyleView,
     SessionActionView,
 )
+from toolbox.interfaces.discord.dashboard import (
+    DashboardActionSelect,
+    HelpView,
+    ToolboxDashboardView,
+)
 from toolbox.interfaces.discord.mapper import DiscordMapper
 from toolbox.interfaces.discord.renderer import DiscordRenderer
 
@@ -250,8 +255,16 @@ async def test_message_toolbox_is_a_private_ui_adapter() -> None:
     assert source.response.sent is not None
     assert source.response.sent["ephemeral"] is True
     view = source.response.sent["view"]
-    assert isinstance(view, discord.ui.View)
-    assert len(view.children) == 8
+    assert isinstance(view, ToolboxDashboardView)
+    assert len(view.children) == 4
+    action_select = next(
+        child
+        for child in view.children
+        if getattr(child, "placeholder", None) == "Choose an action"
+    )
+    assert isinstance(action_select, DashboardActionSelect)
+    labels: set[str] = {option.label for option in action_select.options}
+    assert {"Ask about it", "Search it", "Translate", "Save"}.issubset(labels)
 
 
 @pytest.mark.asyncio
@@ -417,12 +430,9 @@ async def test_message_toolbox_search_forwards_the_selected_message() -> None:
 
     await renderer.render_message_toolbox(source, message)
     view = source.response.sent["view"] if source.response.sent is not None else None
-    assert isinstance(view, discord.ui.View)
-    search_button = next(
-        button for button in view.children if getattr(button, "label", None) == "Search"
-    )
+    assert isinstance(view, ToolboxDashboardView)
 
-    await search_button.callback(source)  # type: ignore[arg-type]
+    await view.activate_action(cast(discord.Interaction, source), "search")
 
     assert executor.calls == [(CapabilityName.SEARCH_WEB, None)]
     assert executor.targets == [message]
@@ -476,8 +486,9 @@ async def test_search_renderer_keeps_pagination_action_opaque() -> None:
 
 
 @pytest.mark.asyncio
-async def test_help_renderer_uses_fields_for_the_complete_command_catalog() -> None:
+async def test_help_renderer_uses_a_navigable_section_view() -> None:
     renderer = DiscordRenderer()
+    renderer.bind_executor(cast(ActionExecutor, Executor()))
     source = interaction()
 
     await renderer.render(
@@ -496,9 +507,11 @@ async def test_help_renderer_uses_fields_for_the_complete_command_catalog() -> N
     assert isinstance(embed, discord.Embed)
     payload = embed.to_dict()
     fields = payload.get("fields", [])
-    assert [field["name"] for field in fields] == ["Search", "Tools"]
+    assert [field["name"] for field in fields] == ["Search"]
     assert "`/search <query>`" in fields[0]["value"]
-    assert "`/tool calc <expression>`" in fields[1]["value"]
+    view = source.response.sent["view"]
+    assert isinstance(view, HelpView)
+    assert len(view.children) == 4
 
 
 @pytest.mark.asyncio

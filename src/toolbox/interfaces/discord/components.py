@@ -8,7 +8,7 @@ from uuid import UUID
 
 import discord
 
-from toolbox.core.models import CapabilityName
+from toolbox.core.models import ActionKind, CapabilityName
 
 
 class ActionExecutor(Protocol):
@@ -68,11 +68,28 @@ class SessionActionButton(discord.ui.Button[discord.ui.View]):
         session_id: UUID,
         executor: ActionExecutor,
         label: str,
+        action_kind: ActionKind = ActionKind.SHARE,
         capability: CapabilityName = CapabilityName.SHARE,
     ) -> None:
+        style = {
+            ActionKind.SHARE: discord.ButtonStyle.success,
+            ActionKind.SEND_DM: discord.ButtonStyle.success,
+            ActionKind.EXPAND: discord.ButtonStyle.primary,
+            ActionKind.DELETE: discord.ButtonStyle.danger,
+        }.get(action_kind, discord.ButtonStyle.secondary)
+        emoji = {
+            ActionKind.SHARE: "↗",
+            ActionKind.SEND_DM: "✉",
+            ActionKind.EXPAND: "↕",
+            ActionKind.NEXT_PAGE: "▶",
+            ActionKind.PREVIOUS_PAGE: "◀",
+            ActionKind.REGENERATE: "↻",
+            ActionKind.REFINE: "✎",
+        }.get(action_kind)
         super().__init__(
             label=label,
-            style=discord.ButtonStyle.primary,
+            style=style,
+            emoji=emoji,
             custom_id=f"tbx:v1:act:{session_id}",
         )
         self._session_id = session_id
@@ -96,6 +113,7 @@ class SessionActionView(discord.ui.View):
         executor: ActionExecutor,
         *,
         label: str = "Share",
+        action_kind: ActionKind = ActionKind.SHARE,
         capability: CapabilityName = CapabilityName.SHARE,
     ) -> None:
         super().__init__(timeout=None)
@@ -104,6 +122,7 @@ class SessionActionView(discord.ui.View):
             self.add_session_action(
                 session_id=session_id,
                 label=label,
+                action_kind=action_kind,
                 capability=capability,
             )
 
@@ -113,6 +132,7 @@ class SessionActionView(discord.ui.View):
         session_id: UUID,
         label: str,
         capability: CapabilityName,
+        action_kind: ActionKind = ActionKind.SHARE,
     ) -> None:
         """Add one opaque, already-authorized application action."""
 
@@ -121,6 +141,7 @@ class SessionActionView(discord.ui.View):
                 session_id=session_id,
                 executor=self._executor,
                 label=label,
+                action_kind=action_kind,
                 capability=capability,
             )
         )

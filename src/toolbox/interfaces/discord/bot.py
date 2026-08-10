@@ -1,4 +1,4 @@
-"""Thin discord.py transport for Phase 0."""
+"""Thin discord.py transport and ingress adapter for Toolbox."""
 
 from __future__ import annotations
 
@@ -56,6 +56,12 @@ class ToolboxBot(discord.Client):
         @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
         async def help_command(interaction: discord.Interaction) -> None:
             await self._execute(interaction, CapabilityName.HELP)
+
+        @app_commands.command(name="toolbox", description="Open the private Toolbox dashboard.")
+        @app_commands.allowed_installs(guilds=True, users=True)
+        @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+        async def toolbox_dashboard(interaction: discord.Interaction) -> None:
+            await self._renderer.render_dashboard(interaction)
 
         search_modes = [
             app_commands.Choice(name="Web", value="web"),
@@ -608,6 +614,226 @@ class ToolboxBot(discord.Client):
 
         tool_group = app_commands.Group(name="tool", description="Deterministic utilities.")
 
+        random_modes = [
+            app_commands.Choice(name="Coin flip", value="coin"),
+            app_commands.Choice(name="Dice roll", value="dice"),
+            app_commands.Choice(name="Random number", value="number"),
+            app_commands.Choice(name="Choose from list", value="choose"),
+            app_commands.Choice(name="Password", value="password"),
+            app_commands.Choice(name="UUID", value="uuid"),
+        ]
+        text_modes = [
+            app_commands.Choice(name="Count", value="count"),
+            app_commands.Choice(name="Uppercase", value="upper"),
+            app_commands.Choice(name="Lowercase", value="lower"),
+            app_commands.Choice(name="Title case", value="title"),
+            app_commands.Choice(name="Reverse", value="reverse"),
+            app_commands.Choice(name="Trim whitespace", value="trim"),
+            app_commands.Choice(name="Slug", value="slug"),
+            app_commands.Choice(name="Sort lines", value="sort"),
+            app_commands.Choice(name="Dedupe lines", value="dedupe"),
+        ]
+        encoding_modes = [
+            app_commands.Choice(name="Base64 encode", value="base64_encode"),
+            app_commands.Choice(name="Base64 decode", value="base64_decode"),
+            app_commands.Choice(name="URL encode", value="url_encode"),
+            app_commands.Choice(name="URL decode", value="url_decode"),
+            app_commands.Choice(name="Hex encode", value="hex_encode"),
+            app_commands.Choice(name="Hex decode", value="hex_decode"),
+            app_commands.Choice(name="Hash", value="hash"),
+        ]
+        json_modes = [
+            app_commands.Choice(name="Format", value="format"),
+            app_commands.Choice(name="Minify", value="minify"),
+            app_commands.Choice(name="Sort keys", value="sort"),
+            app_commands.Choice(name="Validate", value="validate"),
+        ]
+        color_modes = [
+            app_commands.Choice(name="Inspect", value="inspect"),
+            app_commands.Choice(name="Complement", value="complement"),
+            app_commands.Choice(name="Random", value="random"),
+        ]
+        timestamp_modes = [
+            app_commands.Choice(name="Current time", value="now"),
+            app_commands.Choice(name="Unix / Discord → date", value="unix"),
+            app_commands.Choice(name="ISO date → timestamp", value="date"),
+        ]
+        image_operations = [
+            app_commands.Choice(name="Resize", value="resize"),
+            app_commands.Choice(name="Rotate", value="rotate"),
+            app_commands.Choice(name="Mirror", value="mirror"),
+            app_commands.Choice(name="Grayscale", value="grayscale"),
+            app_commands.Choice(name="Blur", value="blur"),
+            app_commands.Choice(name="Pixelate", value="pixelate"),
+            app_commands.Choice(name="Deep fry", value="deepfry"),
+        ]
+
+        @tool_group.command(
+            name="random",
+            description="Flip, roll, choose, or generate safe values.",
+        )
+        @app_commands.describe(mode="Random operation", value="Examples: 2d20, 1-100, or a | b")
+        @app_commands.choices(mode=random_modes)
+        @app_commands.allowed_installs(guilds=True, users=True)
+        @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+        async def tool_random(  # pyright: ignore[reportUnusedFunction]
+            interaction: discord.Interaction,
+            mode: app_commands.Choice[str],
+            value: str = "",
+        ) -> None:
+            await self._execute(
+                interaction,
+                CapabilityName.RANDOM,
+                text=value,
+                options={"mode": mode.value, "value": value},
+            )
+
+        @tool_group.command(name="text", description="Transform or measure text locally.")
+        @app_commands.describe(mode="Text operation", text="Text to transform")
+        @app_commands.choices(mode=text_modes)
+        @app_commands.allowed_installs(guilds=True, users=True)
+        @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+        async def tool_text(  # pyright: ignore[reportUnusedFunction]
+            interaction: discord.Interaction,
+            mode: app_commands.Choice[str],
+            text: str,
+        ) -> None:
+            await self._execute(
+                interaction,
+                CapabilityName.TEXT,
+                text=text,
+                options={"mode": mode.value, "value": text},
+            )
+
+        @tool_group.command(name="encode", description="Encode, decode, or hash text locally.")
+        @app_commands.describe(
+            mode="Encoding operation",
+            value="Text or encoded value",
+            algorithm="Hash algorithm when mode is Hash",
+        )
+        @app_commands.choices(mode=encoding_modes)
+        @app_commands.allowed_installs(guilds=True, users=True)
+        @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+        async def tool_encode(  # pyright: ignore[reportUnusedFunction]
+            interaction: discord.Interaction,
+            mode: app_commands.Choice[str],
+            value: str,
+            algorithm: str = "sha256",
+        ) -> None:
+            await self._execute(
+                interaction,
+                CapabilityName.ENCODE,
+                text=value,
+                options={"mode": mode.value, "value": value, "algorithm": algorithm},
+            )
+
+        @tool_group.command(name="json", description="Format, minify, sort, or validate JSON.")
+        @app_commands.describe(mode="JSON operation", value="JSON text")
+        @app_commands.choices(mode=json_modes)
+        @app_commands.allowed_installs(guilds=True, users=True)
+        @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+        async def tool_json(  # pyright: ignore[reportUnusedFunction]
+            interaction: discord.Interaction,
+            mode: app_commands.Choice[str],
+            value: str,
+        ) -> None:
+            await self._execute(
+                interaction,
+                CapabilityName.JSON,
+                text=value,
+                options={"mode": mode.value, "value": value},
+            )
+
+        @tool_group.command(name="color", description="Inspect or complement a color.")
+        @app_commands.describe(mode="Color operation", value="Hex, RGB, or common color name")
+        @app_commands.choices(mode=color_modes)
+        @app_commands.allowed_installs(guilds=True, users=True)
+        @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+        async def tool_color(  # pyright: ignore[reportUnusedFunction]
+            interaction: discord.Interaction,
+            mode: app_commands.Choice[str],
+            value: str = "",
+        ) -> None:
+            await self._execute(
+                interaction,
+                CapabilityName.COLOR,
+                text=value,
+                options={"mode": mode.value, "value": value},
+            )
+
+        @tool_group.command(
+            name="timestamp",
+            description="Convert Unix, ISO, and Discord timestamps.",
+        )
+        @app_commands.describe(
+            mode="Timestamp operation",
+            value="Unix seconds, ISO date, or Discord timestamp markup",
+            timezone="IANA timezone for display, such as Asia/Karachi",
+        )
+        @app_commands.choices(mode=timestamp_modes)
+        @app_commands.allowed_installs(guilds=True, users=True)
+        @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+        async def tool_timestamp(  # pyright: ignore[reportUnusedFunction]
+            interaction: discord.Interaction,
+            mode: app_commands.Choice[str],
+            value: str = "",
+            timezone: str = "UTC",
+        ) -> None:
+            await self._execute(
+                interaction,
+                CapabilityName.TIMESTAMP,
+                text=value,
+                options={"mode": mode.value, "value": value, "timezone": timezone},
+            )
+
+        @tool_group.command(name="image", description="Apply a fast local image effect.")
+        @app_commands.describe(
+            operation="Image operation",
+            attachment="Image to process",
+            width="Resize width, when using Resize",
+            height="Resize height, when using Resize",
+            degrees="Rotation degrees, when using Rotate",
+        )
+        @app_commands.choices(operation=image_operations)
+        @app_commands.allowed_installs(guilds=True, users=True)
+        @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+        async def tool_image(  # pyright: ignore[reportUnusedFunction]
+            interaction: discord.Interaction,
+            operation: app_commands.Choice[str],
+            attachment: discord.Attachment,
+            width: int = 0,
+            height: int = 0,
+            degrees: int = 90,
+        ) -> None:
+            await self._execute(
+                interaction,
+                CapabilityName.IMAGE_EDIT,
+                source_attachment=attachment,
+                options={
+                    "operation": operation.value,
+                    "width": str(width),
+                    "height": str(height),
+                    "degrees": str(degrees),
+                },
+            )
+
+        @tool_group.command(
+            name="fileinfo",
+            description="Inspect one attachment without downloading it.",
+        )
+        @app_commands.describe(attachment="File to inspect")
+        @app_commands.allowed_installs(guilds=True, users=True)
+        @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+        async def tool_fileinfo(  # pyright: ignore[reportUnusedFunction]
+            interaction: discord.Interaction,
+            attachment: discord.Attachment,
+        ) -> None:
+            await self._execute(
+                interaction,
+                CapabilityName.FILE_INFO,
+                source_attachment=attachment,
+            )
+
         @tool_group.command(name="calc", description="Safely calculate an expression.")
         @app_commands.describe(expression="Arithmetic expression")
         @app_commands.allowed_installs(guilds=True, users=True)
@@ -796,6 +1022,7 @@ class ToolboxBot(discord.Client):
 
         self.tree.add_command(ping)  # pyright: ignore[reportUnknownArgumentType]
         self.tree.add_command(help_command)  # pyright: ignore[reportUnknownArgumentType]
+        self.tree.add_command(toolbox_dashboard)  # pyright: ignore[reportUnknownArgumentType]
         self.tree.add_command(find)  # pyright: ignore[reportUnknownArgumentType]
         self.tree.add_command(search)  # pyright: ignore[reportUnknownArgumentType]
         self.tree.add_command(ask)  # pyright: ignore[reportUnknownArgumentType]

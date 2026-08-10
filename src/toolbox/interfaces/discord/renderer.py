@@ -44,11 +44,10 @@ from toolbox.core.result_codec import ResultCodec
 
 from .components import (
     ActionExecutor,
-    MessageToolboxView,
     QuoteStyleView,
     SessionActionView,
-    UserToolboxView,
 )
+from .dashboard import TOOLBOX_COLOUR, HelpView, ToolboxDashboardView
 from .mapper import DiscordMapper
 
 
@@ -128,9 +127,16 @@ class DiscordRenderer:
                 allowed_mentions=discord.AllowedMentions.none(),
             )
             return
-        view = MessageToolboxView(message, self._executor, self)
+        preferences = await self._accessibility_preferences(interaction)
+        view = ToolboxDashboardView(
+            self._executor,
+            target_message=message,
+            quote_renderer=self,
+            high_contrast=bool(preferences is not None and preferences.accessibility_high_contrast),
+        )
+        embed = view.embed()
         await interaction.response.send_message(
-            content="What would you like to do with this message?",
+            embed=embed,
             view=view,
             ephemeral=True,
             allowed_mentions=discord.AllowedMentions.none(),
@@ -150,10 +156,40 @@ class DiscordRenderer:
                 allowed_mentions=discord.AllowedMentions.none(),
             )
             return
-        view = UserToolboxView(user, self._executor, self)
-        display_name = self._clean(getattr(user, "display_name", "this user"))
+        preferences = await self._accessibility_preferences(interaction)
+        view = ToolboxDashboardView(
+            self._executor,
+            target_user=user,
+            quote_renderer=self,
+            high_contrast=bool(preferences is not None and preferences.accessibility_high_contrast),
+        )
+        embed = view.embed()
         await interaction.response.send_message(
-            content=f"What would you like to do with {display_name}?",
+            embed=embed,
+            view=view,
+            ephemeral=True,
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
+
+    async def render_dashboard(self, interaction: Any) -> None:
+        """Render the common home dashboard used by the slash entry point."""
+
+        if self._executor is None:
+            await interaction.response.send_message(
+                content="Toolbox is still wiring its dashboard.",
+                ephemeral=True,
+                allowed_mentions=discord.AllowedMentions.none(),
+            )
+            return
+        preferences = await self._accessibility_preferences(interaction)
+        view = ToolboxDashboardView(
+            self._executor,
+            quote_renderer=self,
+            high_contrast=bool(preferences is not None and preferences.accessibility_high_contrast),
+        )
+        embed = view.embed()
+        await interaction.response.send_message(
+            embed=embed,
             view=view,
             ephemeral=True,
             allowed_mentions=discord.AllowedMentions.none(),
@@ -340,6 +376,7 @@ class DiscordRenderer:
         embed = discord.Embed(
             title=f"🔖 {title}",
             description=self._truncate(description, 4_000),
+            colour=TOOLBOX_COLOUR,
         )
         if item.tags:
             embed.add_field(
@@ -393,6 +430,7 @@ class DiscordRenderer:
                 embed = discord.Embed(
                     title=self._clean(result.title) if result.title else None,
                     description=self._truncate(result.text, 4_000),
+                    colour=TOOLBOX_COLOUR,
                 )
                 if result.input_text:
                     embed.add_field(
@@ -436,6 +474,7 @@ class DiscordRenderer:
             embed = discord.Embed(
                 title=self._clean(result.title),
                 description="\n".join(f"• {self._clean(choice)}" for choice in result.choices),
+                colour=TOOLBOX_COLOUR,
             )
             return None, embed, None
         if isinstance(result, PendingResult):
@@ -552,7 +591,10 @@ class DiscordRenderer:
         data = await self._assets.read(result.asset)
         filename = self._filename(result.asset.mime_type, "toolbox-image")
         file = discord.File(io.BytesIO(data), filename=filename)
-        embed = discord.Embed(title=self._clean(result.title) if result.title else None)
+        embed = discord.Embed(
+            title=self._clean(result.title) if result.title else None,
+            colour=TOOLBOX_COLOUR,
+        )
         if result.input_text:
             embed.add_field(
                 name="Request",
@@ -581,7 +623,11 @@ class DiscordRenderer:
         return content, None, file
 
     async def _action_view(self, interaction: Any, result: ToolResult) -> discord.ui.View | None:
-        if self._sessions is None or self._executor is None or self._is_public(result):
+        if self._executor is None or self._is_public(result):
+            return None
+        if isinstance(result, HelpResult):
+            return HelpView(result)
+        if self._sessions is None:
             return None
         actions = self._actions(result)
         owner_id = int(interaction.user.id)
@@ -627,6 +673,7 @@ class DiscordRenderer:
                 session_id=session_id,
                 label=action.label,
                 capability=capability,
+                action_kind=action.kind,
             )
         return view if view.children else None
 
@@ -699,6 +746,7 @@ class DiscordRenderer:
         embed = discord.Embed(
             title=f"🔎 {DiscordRenderer._clean(result.query)}",
             description=DiscordRenderer._truncate(description, 4_000),
+            colour=TOOLBOX_COLOUR,
         )
         if result.kind.value in {"images", "gif"}:
             preview = next(
@@ -724,19 +772,24 @@ class DiscordRenderer:
 
     @staticmethod
     def _help_embed(result: HelpResult) -> discord.Embed:
-        """Render every help section without relying on Discord message length."""
+        """Render the first help section; ``HelpView`` handles navigation."""
 
         embed = discord.Embed(
-            title=DiscordRenderer._clean(result.title),
-            description="All commands are private by default. Use Share to post a result.",
+            title=f"🧰 {DiscordRenderer._clean(result.title)}",
+            description=(
+                "Use the section menu to browse Toolbox without scrolling through a wall of text."
+            ),
+            colour=TOOLBOX_COLOUR,
         )
-        for section in result.sections:
+        if result.sections:
+            section = result.sections[0]
             value = "\n".join(DiscordRenderer._clean(line) for line in section.lines)
             embed.add_field(
                 name=DiscordRenderer._clean(section.title),
                 value=DiscordRenderer._truncate(value, 1_024) or "No commands listed.",
                 inline=False,
             )
+            embed.set_footer(text=f"Section 1 of {len(result.sections)} • private help")
         return embed
 
     @staticmethod
@@ -744,6 +797,7 @@ class DiscordRenderer:
         embed = discord.Embed(
             title=f"Fact check: {DiscordRenderer._clean(result.claim)}",
             description=DiscordRenderer._clean(result.explanation),
+            colour=TOOLBOX_COLOUR,
         )
         embed.add_field(name="Verdict", value=result.verdict.value.replace("_", " ").title())
         if result.sources:

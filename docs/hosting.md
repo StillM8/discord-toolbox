@@ -38,7 +38,7 @@ toolbox → Discord, Codex, SQLite, local tools
 searxng  → private Docker-network search
 ```
 
-The named volumes preserve `/data/toolbox.db`, assets, Codex authentication state, and SearXNG configuration. Do not use `docker compose down -v` unless you intentionally want to erase that host's data.
+The named volumes preserve `/data/toolbox.db`, assets, Codex authentication state, and SearXNG configuration. Do not use `docker compose down -v` unless you intentionally want to erase that host's data. The application image also contains ffmpeg, Tesseract English/Urdu/Arabic data, Pillow/PyMuPDF, and the optional local background-removal/transcription packages; those model-backed features remain opt-in through `.env`.
 
 ## 3. Authenticate Codex from Discord
 
@@ -77,6 +77,12 @@ Accessibility preferences are owner-scoped and survive restarts:
 ```
 
 Plain-text mode provides screen-reader-friendly message content instead of embeds. Reduced motion suppresses search preview images, high contrast brightens embed accents, and verbose descriptions include direct URLs. Discord's client-level font, theme, zoom, and screen-reader settings remain separate.
+
+### Dashboard UI
+
+Use `/toolbox` for the private home dashboard. It groups actions into sections and opens input modals only when an action needs text. The same dashboard shell is used after `Apps → Toolbox` on a message or user, with the selected object automatically passed to the relevant actions. `/help` provides the same information through a paginated section menu.
+
+The Utilities section includes calculator, unit/currency conversion, friendly time and Discord timestamps, randomizers, text transforms, encoding/hashing, JSON formatting, color inspection, and local image effects. Attachment-specific tools are also available as `/tool image`, `/tool fileinfo`, `/tool ocr`, `/tool transcribe`, and `/tool file`.
 
 ## 5. Diagnose a host
 

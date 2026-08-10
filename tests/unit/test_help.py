@@ -29,6 +29,7 @@ async def test_help_lists_search_alias_and_command_groups() -> None:
     assert isinstance(result, HelpResult)
     help_text = "\n".join(line for section in result.sections for line in section.lines)
     assert "`/help`" in help_text
+    assert "`/toolbox`" in help_text
     assert "`/ping`" in help_text
     assert "`/search <query> [mode]`" in help_text
     assert "`/find <query> [mode]` — Alias for `/search`." in help_text

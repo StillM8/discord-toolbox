@@ -18,6 +18,7 @@ class HelpCapability:
                     title="General",
                     lines=(
                         "`/help` — Show this complete command list.",
+                        "`/toolbox` — Open the private interactive dashboard.",
                         "`/ping` — Check whether Toolbox is online.",
                     ),
                 ),
@@ -82,6 +83,15 @@ class HelpCapability:
                         "`/tool convert <expression>` — Convert units or currency.",
                         "`/tool time <places>` — Current time for friendly places, "
                         "e.g. `UK Islamabad`.",
+                        "`/tool random <mode> [value]` — Flip, roll, choose, password, or UUID.",
+                        "`/tool text <mode> <text>` — Count or transform text locally.",
+                        "`/tool encode <mode> <value>` — Encode, decode, or hash text.",
+                        "`/tool json <mode> <value>` — Format, minify, sort, or validate JSON.",
+                        "`/tool color <mode> [value]` — Inspect or complement colors.",
+                        "`/tool timestamp <mode> [value]` — Convert Unix/ISO/Discord timestamps.",
+                        "`/tool image <operation> <attachment>` — Apply a fast local image effect.",
+                        "`/tool fileinfo <attachment>` — Inspect attachment metadata without "
+                        "downloading.",
                         "`/tool weather <location>` — Check current weather.",
                         "`/tool ocr <attachment>` — Extract text from an image.",
                         "`/tool transcribe <attachment>` — Transcribe audio.",

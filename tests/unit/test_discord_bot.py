@@ -40,6 +40,7 @@ async def test_discord_surface_registers_thin_user_install_commands() -> None:
     assert {
         "ping",
         "help",
+        "toolbox",
         "find",
         "search",
         "ask",
@@ -69,8 +70,16 @@ async def test_discord_surface_registers_thin_user_install_commands() -> None:
     assert isinstance(tool, app_commands.Group)
     assert {command.name for command in tool.commands} == {
         "calc",
+        "color",
         "convert",
+        "encode",
+        "fileinfo",
+        "image",
+        "json",
         "qr",
+        "random",
+        "text",
+        "timestamp",
         "emoji",
         "time",
         "weather",

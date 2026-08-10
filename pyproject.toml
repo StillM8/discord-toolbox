@@ -42,6 +42,9 @@ local-media = [
     "rembg>=2,<3",
     "onnxruntime>=1.20,<2",
     "faster-whisper>=1.1,<2",
+    # rembg's older pymatting resolution pulls a Python 3.9-only numba.
+    # Keep the optional extra usable on the supported Python 3.12 runtime.
+    "pymatting>=1.1.15,<2",
 ]
 pdf = [
     "pypdf>=5,<7",

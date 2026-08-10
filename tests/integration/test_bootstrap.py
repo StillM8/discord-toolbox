@@ -55,5 +55,22 @@ async def test_composition_root_builds_and_closes_current_runtime(tmp_path: Path
 
     assert isinstance(result, TextResult)
     assert result.text == "4"
+
+    utility_result = await runtime.dispatcher.execute(
+        ToolRequest(
+            request_id=uuid4(),
+            capability=CapabilityName.JSON,
+            actor=ActorContext(user=UserContext(user_id=42, display_name="Tester")),
+            interaction=InteractionContext(
+                guild_id=None,
+                channel_id=None,
+                surface="test",
+            ),
+            text='{"ok":true}',
+            options={"mode": "format"},
+        )
+    )
+    assert isinstance(utility_result, TextResult)
+    assert '"ok": true' in utility_result.text
     assert (tmp_path / "assets").is_dir()
     await runtime.close()

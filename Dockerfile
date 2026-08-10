@@ -15,18 +15,20 @@ RUN apt-get update \
         libmagic1 \
         tesseract-ocr \
         tesseract-ocr-eng \
+        tesseract-ocr-urd \
+        tesseract-ocr-ara \
         tzdata \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir uv
 
 COPY pyproject.toml uv.lock README.md ./
-RUN uv sync --frozen --no-dev --no-install-project
+RUN uv sync --frozen --no-dev --extra openai --extra local-media --no-install-project
 
 COPY alembic.ini PLAN.md AGENTS.md ./
 COPY migrations ./migrations
 COPY src ./src
 
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev --extra openai --extra local-media
 
 RUN mkdir -p /data/assets /data/codex
 

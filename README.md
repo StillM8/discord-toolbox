@@ -14,11 +14,13 @@ Discord is only an interface adapter. Codex is the default text/reasoning provid
 
 ## Current capabilities
 
-- `/ping`, `/find` for web, image, news, and video search through SearXNG, plus optional GIF search;
+- `/ping`, `/toolbox`, and `/find` for web, image, news, and video search through SearXNG, plus optional GIF search;
 - `/ask`, `/what`, `/research`, `/factcheck`, `/link`, and `/translate`;
-- `/tool calc`, `/tool convert`, `/tool time`, `/tool weather`, `/tool qr`, `/tool background`, and `/tool file`;
+- `/tool calc`, `/tool convert`, `/tool time`, `/tool timestamp`, `/tool weather`, `/tool qr`, `/tool background`, and `/tool file`;
+- a deterministic utility pack: `/tool random`, `/tool text`, `/tool encode`, `/tool json`, `/tool color`, `/tool image`, and `/tool fileinfo`;
 - `/tool ocr` for images and `/tool transcribe` for audio attachments;
 - `/create image` through Codex ImageGen with an explicit, opt-in paid OpenAI fallback;
+- a compact, reusable Toolbox dashboard for slash commands, selected messages, and selected users; actions are grouped into Ask/Understand, Search, Create, Utilities, and Personal sections instead of a button wall;
 - a `Toolbox` message/user context panel for Ask, What is this, Search, Translate, Fact check, Save, Add context, OCR, image questions, image transforms, memes, transcription, and configurable reference-style quote cards (font, alignment, color, and image placement);
 - owner-scoped saved items, context basket, preferences, durable reminders, and `/me` subcommands for status/preferences/saved/reminders/context;
 - accessibility preferences through `/me accessibility`: plain-text output for screen readers, high-contrast embeds, reduced-motion search previews, and verbose descriptions/URLs;
@@ -26,7 +28,7 @@ Discord is only an interface adapter. Codex is the default text/reasoning provid
 - private previews with opaque, owner-authorized Share sessions;
 - SQLite/Alembic persistence with FTS5 saved search, expiring local assets, bounded jobs, URL/attachment safety checks, Pillow transforms, Tesseract OCR, HEIC support, and structured Discord lifecycle/interaction logging.
 
-GIF search, local background removal, local transcription, richer movie/places APIs, and paid media fallbacks are intentionally optional integrations. The local-media providers are implemented behind flags; optional model packages are not installed in the default image.
+GIF search, richer movie/places APIs, and paid media fallbacks are intentionally optional integrations. The Docker image includes the optional OpenAI client, local-media provider packages, and Urdu/Arabic OCR language data, but paid/API and model-backed features remain disabled until their flags and credentials are enabled; model weights load only when used. The image also includes the deterministic utility, image, PDF, OCR, audio/video conversion, and search stack.
 
 ## Runtime stack
 
@@ -121,6 +123,8 @@ Accessibility settings are personal and persist across restarts:
 Plain-text mode avoids embeds and presents requests, sources, and attached-file descriptions as readable message content. Reduced-motion mode avoids image-search preview thumbnails. High-contrast mode uses a bright embed accent, and verbose descriptions include direct URLs where useful. These settings change Toolbox output; Discord's own font size, theme, and screen-reader controls remain controlled by the Discord client.
 
 Every slash command is configured for the supported user-install contexts, including DMs. If a command is missing from a particular context, resync the application commands after changing Developer Portal installation/context settings; Toolbox does not use `on_message` or a self-bot to work around Discord's interaction model.
+
+Use `/toolbox` to open the private dashboard. Its section and action menus are shared with the right-click `Apps → Toolbox` panels, so new capabilities can be added to one action catalog and exposed through multiple entry points without duplicating UI logic. `/help` is also navigable by section rather than posting every command at once.
 
 ## Verification
 
